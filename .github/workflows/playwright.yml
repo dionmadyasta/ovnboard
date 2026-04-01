@@ -39,11 +39,12 @@ jobs:
         cd e2e-tests
         npx playwright install --with-deps chromium
 
+    # 3. RUN ALL TESTS (Playwright handles servers automatically)
     - name: Run E2E tests
       env:
-        # Supabase and API configuration
+        # SECRETS for API and UI
         SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-        SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         MY_USER_ID: ${{ secrets.MY_USER_ID }}
         VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
         VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
