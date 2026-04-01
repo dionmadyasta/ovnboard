@@ -13,7 +13,7 @@ load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-MY_USER_ID = os.getenv("MY_USER_ID")  # UUID milikmu saja (Ambil di Auth > Users)
+MY_USER_ID = os.getenv("MY_USER_ID")  # Authorized user UUID (Retrieve from Supabase Auth > Users)
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     print("WARNING: Supabase credentials not found in environment!")
@@ -28,10 +28,10 @@ security = HTTPBearer()
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
-    """Verifikasi token lewat Supabase Auth Server secara langsung (Native Method)."""
+    """Verify authorization token directly via Supabase Auth server (Native Method)."""
     token = credentials.credentials
     try:
-        # Nanya langsung ke Supabase: "Ini token valid nggak?"
+        # Validate the session with Supabase
         user_response = supabase.auth.get_user(token)
 
         if not user_response or not user_response.user:
@@ -39,18 +39,18 @@ async def get_current_user(
 
         user_id = user_response.user.id
 
-        # Proteksi extra: Hanya ID milikmu yang boleh lewat (Single User App)
+        # Security enforcement: Only the authorized user ID is allowed (Single-User Instance)
         if MY_USER_ID and user_id != MY_USER_ID:
             raise HTTPException(
                 status_code=403,
-                detail="Forbidden: You are not the owner of this workspace",
+                detail="Access denied: You are not authorized to access this workspace",
             )
 
         return user_id
     except Exception as e:
         print(f"Auth Error: {e}")
         raise HTTPException(
-            status_code=401, detail="Could not validate credentials via Supabase"
+            status_code=401, detail="Authentication failed: Unable to validate credentials via Supabase"
         )
 
 
@@ -90,7 +90,7 @@ async def root():
 @app.get("/tasks")
 async def get_tasks(user_id: str = Depends(get_current_user)):
     try:
-        # Ambil tasks milik user yang login saja
+        # Retrieve tasks associated with the authenticated user only
         response = (
             supabase.table("tasks")
             .select("*")
@@ -107,7 +107,7 @@ async def get_tasks(user_id: str = Depends(get_current_user)):
 @app.post("/tasks")
 async def create_task(task: Task, user_id: str = Depends(get_current_user)):
     try:
-        # Pastikan user_id di body sama dengan user yang login
+        # Ensure the task user_id matches the authenticated user
         task_data = task.model_dump(exclude_none=True)
         task_data["user_id"] = user_id
 
@@ -126,7 +126,7 @@ async def update_task(
     task_id: str, payload: dict, user_id: str = Depends(get_current_user)
 ):
     try:
-        # Pastikan task yang di-update milik user yang login
+        # Verify that the task being modified belongs to the authenticated user
         current = (
             supabase.table("tasks")
             .select("*")

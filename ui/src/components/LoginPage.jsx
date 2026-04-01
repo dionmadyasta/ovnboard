@@ -22,7 +22,7 @@ const LoginPage = ({ onLogin }) => {
       setError(authError.message);
       setLoading(false);
     } else {
-      // Login sukses!
+      // Authentication successful
       onLogin(data.user);
     }
   };
