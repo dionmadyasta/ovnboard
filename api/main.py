@@ -85,6 +85,7 @@ async def get_tasks(user_id: str = Depends(get_current_user)):
         response = supabase.table("tasks").select("*").eq("user_id", user_id).order("position").execute()
         return response.data
     except Exception as e:
+        print(f"DEBUG - GET /tasks error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/tasks")
@@ -96,9 +97,11 @@ async def create_task(task: Task, user_id: str = Depends(get_current_user)):
         
         response = supabase.table("tasks").insert(task_data).execute()
         if not response.data:
+            print(f"POST tasks error (no data): {response}")
             raise HTTPException(status_code=400, detail="Failed to create task")
         return response.data[0]
     except Exception as e:
+        print(f"POST tasks error exception: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.patch("/tasks/{task_id}")
