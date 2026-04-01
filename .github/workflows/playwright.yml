@@ -1,9 +1,11 @@
 name: Playwright Tests
+
 on:
   push:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+
 jobs:
   test:
     timeout-minutes: 60
@@ -11,72 +13,51 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    # 1. Setup Backend (Python/FastAPI)
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
-    - name: Install API Dependencies
+
+    - name: Install API dependencies
       run: |
         cd api
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
-    # 2. Setup Node.js (Frontend & E2E)
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 18
+        node-version: 20
 
-    - name: Install UI Dependencies
+    - name: Install UI and E2E dependencies
       run: |
-        cd ui
-        npm install
-    
-    - name: Install E2E Dependencies
-      run: |
-        cd e2e-tests
-        npm install
+        cd ui && npm install
+        cd ../e2e-tests && npm install
 
-    - name: Install Playwright Browsers
+    - name: Install Playwright browsers
       run: |
         cd e2e-tests
         npx playwright install --with-deps chromium
 
-    # 3. Start Servers in Background
-    - name: Start API and UI
+    - name: Run E2E tests
       env:
+        # Supabase and API configuration
         SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
         SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         MY_USER_ID: ${{ secrets.MY_USER_ID }}
         VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
         VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-        VITE_API_URL: http://localhost:8000
-      run: |
-        # Start API
-        cd api
-        nohup python main.py &
-        
-        # Start UI
-        cd ../ui
-        nohup npm run dev &
-        
-        # Wait for both servers to be ready
-        echo "Waiting for services to start..."
-        npx wait-on http://localhost:8000 http://localhost:5173 --timeout 60000
-
-    # 4. Run Playwright Tests
-    - name: Run Playwright tests
-      env:
-        BASE_URL: http://localhost:5173
+        VITE_API_URL: http://127.0.0.1:8000
+        # Test environment and credentials
+        BASE_URL: http://127.0.0.1:5173
         TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
         TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
       run: |
         cd e2e-tests
         npx playwright test
 
-    # 5. Upload Report (If tests fail)
-    - uses: actions/upload-artifact@v4
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: playwright-report
