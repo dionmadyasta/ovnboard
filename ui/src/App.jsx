@@ -749,7 +749,7 @@ function App() {
           <div className="topbar-actions">
             <span style={{ fontSize: '13px', fontWeight: '700', marginRight: '12px', opacity: 0.6 }}>{user.email}</span>
             <button className="icon-btn"><Bell size={18} /></button>
-            <button className="primary-btn" onClick={() => setIsModalOpen(true)}><Plus size={16} /> New Task</button>
+            <button className="primary-btn" onClick={() => window.openCreateTaskModal()}><Plus size={16} /> New Task</button>
           </div>
         </header>
 
