@@ -1,0 +1,29 @@
+# Python / API
+api/venv/
+api/__pycache__/
+api/*.py[cod]
+api/*.egg-info/
+api/dist/
+api/build/
+api/.env
+
+# JavaScript / UI
+ui/node_modules/
+ui/dist/
+ui/dist-ssr/
+ui/.env.local
+ui/*.local
+ui/npm-debug.log*
+ui/yarn-debug.log*
+ui/yarn-error.log*
+
+# Editor & System
+.vscode/
+.idea/
+.DS_Store
+*.log
+*.sw?
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
