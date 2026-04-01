@@ -18,8 +18,17 @@ MY_USER_ID = os.getenv("MY_USER_ID")  # Authorized user UUID (Retrieve from Supa
 if not SUPABASE_URL or not SUPABASE_KEY:
     print("WARNING: Supabase credentials not found in environment!")
 
+if not MY_USER_ID:
+    print("CRITICAL: MY_USER_ID not set! This instance is PUBLIC to all Supabase users.")
+
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-app = FastAPI(title="OVN Board API")
+app = FastAPI(
+    title="OVN Board API",
+    docs_url=None,  # Disables Swagger UI
+    redoc_url=None, # Disables Redoc
+    openapi_url=None # Disables openapi.json
+)
+
 
 # Security setup
 security = HTTPBearer()
@@ -77,6 +86,13 @@ class Task(BaseModel):
     moved_to_completed_at: Optional[str] = None
 
 
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    due_date: Optional[str] = None
+    status: Optional[str] = None
+    position: Optional[int] = None
+
 class ReorderItem(BaseModel):
     id: str
     position: int
@@ -123,7 +139,7 @@ async def create_task(task: Task, user_id: str = Depends(get_current_user)):
 
 @app.patch("/tasks/{task_id}")
 async def update_task(
-    task_id: str, payload: dict, user_id: str = Depends(get_current_user)
+    task_id: str, payload: TaskUpdate, user_id: str = Depends(get_current_user)
 ):
     try:
         # Verify that the task being modified belongs to the authenticated user
@@ -140,10 +156,11 @@ async def update_task(
             )
 
         old_task = current.data[0]
-        update_data = payload.copy()
+        # Only include fields that were explicitly sent in the request
+        update_data = payload.model_dump(exclude_unset=True)
 
-        if "status" in payload:
-            new_status = payload.get("status")
+        if payload.status is not None:
+            new_status = payload.status
             now = datetime.now(timezone.utc).isoformat()
 
             if new_status == "backlog":
