@@ -487,6 +487,8 @@ const AnalyticsView = ({ tasks }) => {
   );
 };
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 function App() {
   const [user, setUser] = useState(null);
   const [tasks, setTasks] = useState([]);
@@ -516,9 +518,18 @@ function App() {
 
   const fetchTasks = async () => {
     try {
-      const response = await fetch('http://localhost:8000/tasks');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await fetch(`${API_BASE_URL}/tasks`, {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
       const data = await response.json();
-      setTasks(data);
+      if (response.ok) {
+        setTasks(data);
+      }
     } catch (error) { console.error("Data fetch error:", error); }
   };
 
@@ -531,11 +542,17 @@ function App() {
   };
 
   const handleSaveTask = async (taskData) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
     if (editingTask) {
       try {
-        const response = await fetch(`http://localhost:8000/tasks/${editingTask.id}`, {
+        const response = await fetch(`${API_BASE_URL}/tasks/${editingTask.id}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
           body: JSON.stringify(taskData)
         });
         if (response.ok) {
@@ -553,9 +570,12 @@ function App() {
         status: 'backlog'
       };
       try {
-        const response = await fetch('http://localhost:8000/tasks', {
+        const response = await fetch(`${API_BASE_URL}/tasks`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
           body: JSON.stringify(newTask)
         });
         if (response.ok) {
@@ -568,7 +588,13 @@ function App() {
 
   const handleDeleteTask = async (taskId) => {
     try {
-      const response = await fetch(`http://localhost:8000/tasks/${taskId}`, { method: 'DELETE' });
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(`${API_BASE_URL}/tasks/${taskId}`, { 
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
       if (response.ok) {
         setTasks(prev => prev.filter(t => t.id !== taskId));
       }
@@ -644,10 +670,15 @@ function App() {
     const movedTask = finalTasks.find(t => t.id === activeId);
     
     try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
         // Update task status and persist reordered positions
-        await fetch(`http://localhost:8000/tasks/${activeId}`, {
+        await fetch(`${API_BASE_URL}/tasks/${activeId}`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`
+            },
             body: JSON.stringify({ status: movedTask.status })
         });
 
@@ -656,9 +687,12 @@ function App() {
             position: index
         }));
 
-        await fetch('http://localhost:8000/tasks/reorder', {
+        await fetch(`${API_BASE_URL}/tasks/reorder`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`
+            },
             body: JSON.stringify(reorderPayload)
         });
     } catch (error) {

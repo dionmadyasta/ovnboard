@@ -65,7 +65,43 @@ CREATE POLICY "Users can manage their own tasks" ON tasks
 
 ---
 
+## 👤 User Configuration (Authentication)
+
+As this is a private workspace, user accounts must be created manually via the Supabase Dashboard:
+
+1. **Create Account**: Navigate to **Authentication > Users** → **Add User** → **Create new user**.
+2. **Setup Credentials**: Enter your email and a secure password.
+3. **Verify**: If email confirmation is enabled, verify your account via the sent link (Tip: You can toggle this requirement in *Auth Settings*).
+4. **Note**: The system is built for a single-user flow. Ensure your `.env` files are configured with the matching credentials.
+
+---
+
+## 🔐 Environment Configuration
+
+To keep the application secure, you must configure the following environment variables.
+
+### 1. The Engine (Backend: `/api/.env`)
+Create a `.env` file in the `api/` directory:
+
+```bash
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_KEY=your_service_role_key      # Use service_role key for backend
+MY_USER_ID=your_auth_user_uuid          # Find in Auth > Users
+```
+
+### 2. The Face (Frontend: `/ui/.env.local`)
+Create a `.env.local` file in the `ui/` directory:
+
+```bash
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+VITE_API_URL=http://localhost:8000      # Change to Vercel URL in production
+```
+
+---
+
 ## 🛠️ Quick Start
+...
 
 ### 1. The Engine (Backend)
 ```bash
