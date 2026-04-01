@@ -195,7 +195,7 @@ const TimelineView = ({ tasks }) => {
   const startDate = new Date(today);
   startDate.setDate(startDate.getDate() - 14);
   const endDate = new Date(today);
-  endDate.setDate(endDate.getDate() + 60);
+  endDate.setDate(endDate.getDate() + 365); // Extended to 1 year
 
   const getDaysArray = (start, end) => {
     const arr = [];
@@ -244,24 +244,70 @@ const TimelineView = ({ tasks }) => {
     }
   }, [todayPos]);
 
+  const isDown = React.useRef(false);
+  const startX = React.useRef(0);
+  const scrollLeft = React.useRef(0);
+
+  const handleMouseDown = (e) => {
+    isDown.current = true;
+    gridRef.current.classList.add('grabbing');
+    startX.current = e.pageX - gridRef.current.offsetLeft;
+    scrollLeft.current = gridRef.current.scrollLeft;
+  };
+
+  const handleMouseLeave = () => {
+    isDown.current = false;
+    gridRef.current.classList.remove('grabbing');
+  };
+
+  const handleMouseUp = () => {
+    isDown.current = false;
+    gridRef.current.classList.remove('grabbing');
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDown.current) return;
+    e.preventDefault();
+    const x = e.pageX - gridRef.current.offsetLeft;
+    const walk = (x - startX.current) * 2; // scroll-speed
+    gridRef.current.scrollLeft = scrollLeft.current - walk;
+  };
+
   return (
     <div className="timeline-container">
       <div className="timeline-body">
         <div className="timeline-sidebar">
-          <div className="timeline-sidebar-header" style={{ height: '64px', position: 'sticky', top: 0, zIndex: 30 }}>Issues</div>
+          <div className="timeline-sidebar-header" style={{ height: '64px', position: 'sticky', top: 0, zIndex: 30 }}>Tasks</div>
           {tasks.map(task => (
             <div key={task.id} className="timeline-sidebar-item">
               <span style={{
-                width: '8px', height: '8px', borderRadius: '50%', marginRight: '12px',
-                backgroundColor: task.status === 'completed' ? 'var(--tertiary)' : task.status === 'in-progress' ? 'var(--primary)' : 'var(--on-surface-variant)'
-              }} />
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: task.status === 'completed' ? 'var(--tertiary)' : (task.status === 'in_progress' ? 'var(--secondary)' : 'var(--on-surface-variant)'),
+                marginRight: '12px',
+                flexShrink: 0
+              }}></span>
               {task.title}
             </div>
           ))}
-          <div style={{ flexGrow: 1, backgroundColor: 'var(--surface-container-low)' }} />
         </div>
-
-        <div ref={gridRef} style={{ flexGrow: 1, overflowX: 'auto', position: 'relative', scrollBehavior: 'smooth' }}>
+        <div 
+          ref={gridRef} 
+          className="timeline-grid-container"
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          style={{ 
+            flexGrow: 1, 
+            overflowX: 'auto', 
+            overflowY: 'hidden',
+            position: 'relative', 
+            cursor: 'grab',
+            scrollBehavior: 'auto' // Instant scroll for dragging
+          }}
+        >
           <div style={{ position: 'sticky', top: 0, zIndex: 20, backgroundColor: 'var(--surface-container-low)', width: days.length * DAY_WIDTH }}>
             <div style={{ display: 'flex' }}>
               {months.map((m, i) => (

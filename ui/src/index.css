@@ -831,7 +831,13 @@ button, input, select, textarea {
 .timeline-body {
   display: flex;
   flex-grow: 1;
-  overflow: auto;
+  overflow: hidden; /* Prevent body scroll, grid handles it */
+  background: var(--surface-container-lowest);
+}
+
+.timeline-grid-container.grabbing {
+  cursor: grabbing !important;
+  user-select: none;
 }
 
 .timeline-sidebar {
