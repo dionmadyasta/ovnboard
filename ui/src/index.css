@@ -335,8 +335,9 @@ h1, h2, h3, h4 {
   flex-grow: 1;
   display: flex;
   gap: 24px;
-  padding: 0 48px 100px;
-  overflow-x: auto;
+  padding: 0 48px 48px;
+  overflow: auto; /* Allows both vertical and horizontal scrolling */
+  align-items: flex-start; /* Keeps columns at the top */
   scroll-behavior: smooth;
 }
 
