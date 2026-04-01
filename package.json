@@ -1,0 +1,26 @@
+{
+  "name": "ovnboard",
+  "version": "1.0.0",
+  "description": "Welcome to **OVN Board**! Why settle for bloated, slow, and expensive project management tools when you can build a faster, sleek, editorial-style workspace tailored exactly to your flow?",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dionmadyasta/ovnboard.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/dionmadyasta/ovnboard/issues"
+  },
+  "homepage": "https://github.com/dionmadyasta/ovnboard#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "dotenv": "^17.3.1",
+    "playwright": "^1.59.1"
+  }
+}

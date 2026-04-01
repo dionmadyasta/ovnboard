@@ -27,3 +27,12 @@ ui/yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
+
+# E2E Tests (Playwright)
+e2e-tests/node_modules/
+e2e-tests/test-results/
+e2e-tests/playwright-report/
+e2e-tests/blob-report/
+e2e-tests/playwright/.cache/
+e2e-tests/.env
+e2e-tests/*.local
