@@ -5,12 +5,13 @@ console.log('--- CI Environment Check ---');
 console.log('TEST_USER_EMAIL:', process.env.TEST_USER_EMAIL ? 'PRESENT' : 'MISSING ❌');
 console.log('VITE_API_URL:', process.env.VITE_API_URL ? 'PRESENT' : 'MISSING ❌');
 console.log('VITE_SUPABASE_URL:', process.env.VITE_SUPABASE_URL ? 'PRESENT' : 'MISSING ❌');
-console.log('SUPABASE_KEY (Backend):', process.env.SUPABASE_KEY ? 'PRESENT ✅' : 'MISSING ❌');
+console.log('SUPABASE_KEY (Backend):', process.env.SUPABASE_KEY ? 'PRESENT' : 'MISSING ❌');
 console.log('---------------------------');
 
 module.exports = defineConfig({
   testDir: './tests',
-  fullyParallel: false, // Set to false to avoid database race conditions in some cases
+  fullyParallel: false,
+  workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:5173',
@@ -23,7 +24,7 @@ module.exports = defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  
+
   // Automatic Server Management for E2E Tests
   webServer: [
     {
