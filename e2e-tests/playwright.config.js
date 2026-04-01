@@ -1,6 +1,12 @@
 const { defineConfig, devices } = require('@playwright/test');
 require('dotenv').config();
 
+console.log('--- CI Environment Check ---');
+console.log('TEST_USER_EMAIL:', process.env.TEST_USER_EMAIL ? 'PRESENT' : 'MISSING ❌');
+console.log('VITE_API_URL:', process.env.VITE_API_URL ? 'PRESENT' : 'MISSING ❌');
+console.log('VITE_SUPABASE_URL:', process.env.VITE_SUPABASE_URL ? 'PRESENT' : 'MISSING ❌');
+console.log('---------------------------');
+
 module.exports = defineConfig({
   testDir: './tests',
   fullyParallel: false, // Set to false to avoid database race conditions in some cases
