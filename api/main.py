@@ -48,7 +48,11 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(
 # Enable CORS for frontend integration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "https://*.vercel.app"], # Support Vercel previews
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://ovnboard-ui.vercel.app", # Replace with your actual prod URL later
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
