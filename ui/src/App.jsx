@@ -730,7 +730,7 @@ function App() {
           <div className="content-header">
             <div className="breadcrumb">PROJECTS / {currentView === 'board' ? 'WORKSPACE' : currentView.toUpperCase()}</div>
             <h1>
-              {currentView === 'board' && 'Development Roadmap'}
+              {currentView === 'board' && 'Project Roadmap'}
               {currentView === 'timeline' && 'Project Timeline'}
               {currentView === 'analytics' && 'Project Insights'}
             </h1>
